@@ -104,7 +104,9 @@ useEffect(() => {
 /*Used to get new circle and position if changed by fetchData component*/
 
 useEffect(() => {
-  getCircle(); 
+  if (!isEdit && !isConfirm) {
+    getCircle(); 
+  }
   getPosition(); 
   //// console.log("effect_map", device)
 }, [device]);
@@ -227,8 +229,8 @@ const handlePress = (event) => {
                     <Circle 
                     center= {{latitude: circle.latitude, longitude: circle.longitude}}
                     radius= {circle.radius}
-                    strokeColor = {(device?.requests?.circle?.status==11) ? "rgba(0,255,0,1)" : "rgba(255,0,0,1)"}
-                    fillColor = {(device?.requests?.circle?.status==11) ? "rgba(0,255,0,0.3)" : "rgba(255,0,0,0.3)"}
+                    strokeColor = {(device?.requests?.circle?.status==11 && !isEdit) ? "rgba(0,255,0,1)" : "rgba(255,0,0,1)"}
+                    fillColor = {(device?.requests?.circle?.status==11 && !isEdit) ? "rgba(0,255,0,0.3)" : "rgba(255,0,0,0.3)"}
                     />
                     }
                     

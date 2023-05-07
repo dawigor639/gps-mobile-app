@@ -24,7 +24,7 @@ export default function MapTopBar( {selectedId, updateSelectedId, isFocused} ) {
       }
 
     }
-  }, [selectedId]);
+  }, [selectedId,devices]);
 
   useEffect(() => {
       return () => {

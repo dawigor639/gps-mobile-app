@@ -7,8 +7,7 @@ import { useSelector, useDispatch} from 'react-redux';
 import { edit, editRequests } from './ReduxDevices';
 
 import { validateNumber, LATITUDE_REGEX, LONGITUDE_REGEX, RADIUS_REGEX, UNIX_TIME_REGEX, INTERVAL_REGEX } from './sharedValidation';
-import {latitudeRange, longitudeRange, radiusRange, unixTimeRange, intervalRange, codeRange} from './sharedValues';
-
+import {latitudeRange, longitudeRange, radiusRange, unixTimeRange, intervalRange, codeRange ,LATITUDE_DEFAULT, LONGITUDE_DEFAULT} from './sharedValues';
 
 import { store } from './ReduxStore' // replace for useSelector
 
@@ -74,11 +73,11 @@ export default function FetchData() {
     dispatch(editRequests({[requestKey]: { requestId: null, requestTime: null, status: status}, id: elem.id}));
   }
   
-  const sendRequest = async (elem,requestKey,code) => {
+  const sendRequest = async (elem,requestKey,code,payload="") => {
     const requestPendingCode = 3;
     const smsErrorCode = 7;
     const requestId = generateRequestId();
-    const smsSend = await sendSms(elem.address,elem.password+","+code+","+requestId); 
+    const smsSend = await sendSms(elem.address,elem.password+","+code+","+requestId+payload); 
     if (smsSend) {
       registerRequest(elem,requestKey,requestPendingCode,requestId);
     } else {
@@ -93,9 +92,14 @@ export default function FetchData() {
         sendRequest(elem,'position',0); // 0 is api get position request code 
       }
       //Handle sub/unsub request if requestId is and elem.circle.status = 1 or 2
-      if ( (elem.requests.circle.status == 1 || elem.requests.circle.status == 2 )) {
+      if ( (elem.requests.circle.status == 1)) {
+        const payload = ","+[elem.circle.latitude, elem.circle.longitude, elem.circle.radius].join(',');
+        sendRequest(elem,'circle',elem.requests.circle.status,payload); // 1/2 is api sub/unsub request code 
+      }
+      if ( (elem.requests.circle.status == 2)) {
         sendRequest(elem,'circle',elem.requests.circle.status); // 1/2 is api sub/unsub request code 
       }
+
   }
 
   const handleTimeouts = (elem) => {
@@ -114,7 +118,7 @@ export default function FetchData() {
 
   const updateDevice = (elem,payload) => {
     let newElements = {};
-    if (elem.requests.circle.status != 1 && elem.requests.circle.status != 2 ) {
+    if (elem.requests.circle.status != 1 && elem.requests.circle.status != 2 && elem.requests.circle.status != 3 ) {
       newElements = {  
         position: {latitude: payload[0] ,longitude: payload[1], time: payload[2]}, 
         circle: {latitude: payload[3], longitude: payload[4], radius: payload[5]},
@@ -146,8 +150,8 @@ export default function FetchData() {
   const matchRequestKey = (response, requests) => {
 
     const requestKey = Object.keys(requests).find((key) => {
-      //const prefix = "resp=" + requests[key].requestId + ","; //////////////////////////////////////////////////TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
-      const prefix = (key =='position') ?  "resp=" + "lh94r434-8tldu" + "," : "    ";
+      const prefix = "resp=" + requests[key].requestId + ",";
+      //const prefix = (key =='position') ?  "resp=" + "lh94r434-8tldu" + "," : "    "; //TEST
       if (response.startsWith(prefix)) {
         return true;
       }
@@ -208,8 +212,12 @@ export default function FetchData() {
         updateDevice(elem,payload);
         unregisterRequest(elem,requestKey,code);
         break;
-      case 11:
       case 21:
+        newElements = {circle: {latitude: LATITUDE_DEFAULT, longitude: LONGITUDE_DEFAULT, radius: 0},} //TODO CHECK APP BEHAVIOUR for respcode 21
+        dispatch(edit(newElements));
+        unregisterRequest(elem,requestKey,code);
+        break;
+      case 11:
       case 10:   
       case 12: 
       case 20:

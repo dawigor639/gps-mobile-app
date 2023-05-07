@@ -118,6 +118,10 @@ export default App;
 
 export default function App() {
 
+  useEffect(() => {
+    handleSmsPermissions();
+  }, []);
+  
   return (
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
