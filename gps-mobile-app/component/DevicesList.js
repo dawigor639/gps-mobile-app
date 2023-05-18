@@ -1,11 +1,9 @@
-import React ,  { useState, useEffect} from 'react'
+import React from 'react'
 import { View , FlatList , Text , TouchableOpacity , ToastAndroid} from 'react-native'
-import CustomTextInput from './CustomTextInput';
 
-import { settingsStyles, devicesStyles} from './Styles'
+import { devicesStyles} from './Styles'
 
 export default function DevicesList ( {selectedId, updateSelectedId, devices} ) {
-
 
   function getColorByStatus(status) {
     switch (status) {
@@ -50,8 +48,6 @@ export default function DevicesList ( {selectedId, updateSelectedId, devices} ) 
           <Text style={devicesStyles.title}>{'Device '}{item.id}</Text> 
           </View>
 
-          
-
           <Text style={devicesStyles.text}>{'name: '}{item.name}{'\n'}{'address: '}{item.address}</Text>
         </TouchableOpacity>
       </View>
@@ -59,12 +55,12 @@ export default function DevicesList ( {selectedId, updateSelectedId, devices} ) 
 
   const renderItem = ({item}) => {
     const backgroundColor = item.id === selectedId ? 'dodgerblue' : 'white';
-  return (
-    <Item
-      item={item}
-        onPress={() => item.id === selectedId ? updateSelectedId(null) : updateSelectedId(item.id)}
-        backgroundColor={backgroundColor}
-    />
+    return (
+      <Item
+        item={item}
+          onPress={() => updateSelectedId(item.id)}
+          backgroundColor={backgroundColor}
+      />
   )};
     
   return (

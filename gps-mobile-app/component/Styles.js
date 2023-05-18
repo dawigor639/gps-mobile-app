@@ -116,13 +116,13 @@ const mapStyles = StyleSheet.create({
     }
   ];
 
-  const settingsStyles = StyleSheet.create({
+  const historyStyles = StyleSheet.create({
     container: {
       flex: 1,
       allignitems: 'center',
       justifycontent: 'center',
       padding: 10,
-      backgroundColor: 'white'
+      backgroundColor: 'white',
     },
     textInput: {
       fontSize: 19,
@@ -249,4 +249,4 @@ const mapStyles = StyleSheet.create({
 
 });
 
-export { mapStyles, customMapStyle , settingsStyles, devicesStyles }
+export { mapStyles, customMapStyle , historyStyles, devicesStyles }

@@ -7,9 +7,8 @@ import DevicesList from './DevicesList';
 import DevicesMenu from './DevicesMenu'; 
 import DevicesListElement from './DevicesListElement';
 
-
 import { useSelector, useDispatch } from 'react-redux'
-import { add, edit, del } from './ReduxDevices'
+import { addDeviceThunk, edit, delDeviceThunk } from './ReduxDevices'
 
 export default function Devices () {
   
@@ -53,7 +52,7 @@ export default function Devices () {
     if ( status == 3 ) {
       ToastAndroid.show("Request is still pending!", ToastAndroid.SHORT);
     } else {
-     dispatch(del(selectedId))
+     dispatch(delDeviceThunk(selectedId))
      updateSelectedId(null);
     } 
   }
@@ -84,7 +83,7 @@ export default function Devices () {
         ToastAndroid.show("Device already exist, change address!", ToastAndroid.SHORT);
       }
       else {
-        dispatch(add(newElement));
+        dispatch(addDeviceThunk(newElement));
         ToastAndroid.show("Saved!", ToastAndroid.SHORT);
         updateSelectedId(null);
         updateIsEdit(false);

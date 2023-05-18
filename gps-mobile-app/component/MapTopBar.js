@@ -1,6 +1,6 @@
 import React ,  { useState, useEffect, useContext} from 'react'
 import { View, Text , Pressable} from 'react-native'
-import Octicons from 'react-native-vector-icons/Octicons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import DevicesList from './DevicesList';
 import { mapStyles, devicesStyles} from './Styles'
@@ -15,14 +15,11 @@ export default function MapTopBar( {selectedId, updateSelectedId, isFocused} ) {
 
   useEffect(() => {
     if(selectedId!=null) {
-      updateIsBarClick(false);
-
       const interval = setInterval(() => getTime( devices.find(elem => elem.id === selectedId)?.position?.time ), 1000);
       return () => {
         updateTimeText("");
         clearInterval(interval);
       }
-
     }
   }, [selectedId,devices]);
 
@@ -39,7 +36,12 @@ export default function MapTopBar( {selectedId, updateSelectedId, isFocused} ) {
   const updateTimeText = (value) => {
     setTimeText(value);
   } 
-  
+
+  const updateSelectedIdWrapped = (value) => {
+  updateSelectedId(value);
+  updateIsBarClick(false);
+  }
+
   const getTime = (time) => {
     //console.log('getTime',time);
     const diff = time ? Math.floor( Date.now() / 1000) - time : false;
@@ -86,6 +88,8 @@ export default function MapTopBar( {selectedId, updateSelectedId, isFocused} ) {
         return "Error in response";
       case 8:
         return "Error timeout";
+      case 7:
+        return "Error sending request";  
       case 20:
         return "Error unsubscribe";
       default:
@@ -117,14 +121,14 @@ export default function MapTopBar( {selectedId, updateSelectedId, isFocused} ) {
 
 
 
-        <Pressable style={{flex: 1}} onPress={ () => updateIsBarClick(!isBarClick)}>
-            <Octicons  name = {"three-bars"}  size = {40} color = {"black"}/>
+        <Pressable style={{flex: 1, paddingHorizontal: 5}} onPress={ () => updateIsBarClick(!isBarClick)}>
+            <Ionicons  name = {"menu-outline"}  size = {60} color = {"black"}/>
         </Pressable>
 
       </View>
 
       {isBarClick && <View style={mapStyles.topBarList}>
-       <DevicesList  selectedId={selectedId} updateSelectedId={updateSelectedId} devices={devices}/> 
+       <DevicesList  selectedId={selectedId} updateSelectedId={updateSelectedIdWrapped} devices={devices}/> 
       </View> }
 
       </View>

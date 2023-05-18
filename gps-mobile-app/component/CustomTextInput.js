@@ -1,6 +1,6 @@
 import React , {useState, useEffect} from 'react';
 import { View, TextInput , Pressable , Text, Keyboard } from 'react-native';
-import { settingsStyles } from './Styles'
+import { historyStyles } from './Styles'
 import Entypo from 'react-native-vector-icons/Entypo';
 import {validateNumber} from './sharedValidation';
 
@@ -70,12 +70,12 @@ return  (
         <View> 
              {
              visible  &&  <View> 
-            <Text style={settingsStyles.text}>{name}</Text>
-            <View style={settingsStyles.passwordContainer}>
+            <Text style={historyStyles.text}>{name}</Text>
+            <View style={historyStyles.passwordContainer}>
 
             <TextInput 
-              style={ state.focus ? state.valid ? settingsStyles.textInputFocus : settingsStyles.textInputFocusInvalid: 
-              state.valid ? settingsStyles.textInput : settingsStyles.textInputInvalid }
+              style={ state.focus ? state.valid ? historyStyles.textInputFocus : historyStyles.textInputFocusInvalid: 
+              state.valid ? historyStyles.textInput : historyStyles.textInputInvalid }
               placeholder={name}
               keyboardType={keyboardType}
               onChangeText={ (text) => validateAndUpdate(text)}
@@ -87,7 +87,7 @@ return  (
             />
 
             {
-            (secure===true) && <Pressable style={settingsStyles.passwordHiddeIcon} 
+            (secure===true) && <Pressable style={historyStyles.passwordHiddeIcon} 
              onPress={ () => updateState("hide",!state.hide)}
             >
             <Entypo  name = {state.hide ? "eye-with-line" : "eye"} /> 

@@ -6,14 +6,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 // Screens
 import HomeScreen from '../component/screens/HomeScreen';
 import DetailsScreen from '../component/screens/DetailsScreen';
-import SettingsScreen from '../component/screens/SettingsScreen';
+import HistoryScreen from '../component/screens/HistoryScreen';
 
 export default function NavContainer() {
 
 //Screen names
 const homeName = "Home";
 const detailsName = "Details";
-const settingsName = "Settings";
+const historyName = "History";
 
 const Tab = createBottomTabNavigator();
 
@@ -36,8 +36,8 @@ const Tab = createBottomTabNavigator();
             } else if (rn === detailsName) {
               iconName = focused ? 'list' : 'list-outline';
 
-            } else if (rn === settingsName) {
-              iconName = focused ? 'settings' : 'settings-outline';
+            } else if (rn === historyName) {
+              iconName = focused ? 'server' : 'server-outline';
             }
             //return any component
             return <Ionicons name={iconName} size={size} color={color} />;
@@ -46,7 +46,7 @@ const Tab = createBottomTabNavigator();
 
         <Tab.Screen name={homeName} component={HomeScreen} />
         <Tab.Screen name={detailsName} component={DetailsScreen} />
-        {/* <Tab.Screen name={settingsName} component={SettingsScreen} /> */}
+        <Tab.Screen name={historyName} component={HistoryScreen} />
 
       </Tab.Navigator>
     </NavigationContainer>

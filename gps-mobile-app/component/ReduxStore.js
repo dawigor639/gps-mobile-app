@@ -1,25 +1,35 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { savedDevicesReducer } from './ReduxDevices'
-import { persistStore, persistReducer } from 'redux-persist';
+import {persistStore,persistReducer,FLUSH,REHYDRATE,PAUSE,PERSIST,PURGE,REGISTER} from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { combineReducers } from 'redux';
 import thunk from 'redux-thunk';
+//import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 
-const reducers = combineReducers({
-  savedDevices: savedDevicesReducer,
-});
+import { savedDevicesReducer } from './ReduxDevices'
+import { dataBaseReducer } from './ReduxDatabase';
 
-const persistConfig = {
+
+const savedDevicesPersistConfig = {
   key: 'devices',
   storage: AsyncStorage,
+  blacklist: ['devices']
 }
 
-const persistedReducer = persistReducer(persistConfig, reducers);
+const rootReducer = combineReducers({
+  savedDevices: savedDevicesReducer,
+  dataBase:  dataBaseReducer,
+});
+
+const persistedReducer = persistReducer(savedDevicesPersistConfig, rootReducer);
 
 export const store = configureStore({
   reducer: persistedReducer,
-  devTools: process.env.NODE_ENV !== 'production',
-  middleware: [thunk],
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
 })
 
 export const persistor = persistStore(store)

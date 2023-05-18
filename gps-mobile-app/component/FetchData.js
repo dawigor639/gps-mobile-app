@@ -1,20 +1,17 @@
-import React , { useState , useEffect, useCallback, useRef} from 'react';
+import React , {useEffect} from 'react';
 import SmsAndroid from 'react-native-get-sms-android';
 import {checkSmsPermissions} from './Permissions'; 
 
-import { View, Dimensions , Text, ToastAndroid } from 'react-native'; //TESTS
 import { useSelector, useDispatch} from 'react-redux';
 import { edit, editRequests } from './ReduxDevices';
+import { addRecord } from './ReduxDatabase'
 
 import { validateNumber, LATITUDE_REGEX, LONGITUDE_REGEX, RADIUS_REGEX, UNIX_TIME_REGEX, INTERVAL_REGEX } from './sharedValidation';
 import {latitudeRange, longitudeRange, radiusRange, unixTimeRange, intervalRange, codeRange ,LATITUDE_DEFAULT, LONGITUDE_DEFAULT} from './sharedValues';
 
 import { store } from './ReduxStore' // replace for useSelector
 
-
-
 export default function FetchData() {
-
 
   const fetchInterval = 30; //sms api fetching interval in seconds
 
@@ -22,39 +19,14 @@ export default function FetchData() {
     return Math.floor(Date.now() / 1000)
   }
 
-  //let devices = useSelector((state) => state.savedDevices);
-  const getDevices = () => { // replace for useSelector
-    const devices = store.getState().savedDevices;
-    return devices; 
-  }
   const dispatch = useDispatch();
 
-
-  
   useEffect(() => {
     fetch();
     const interval = setInterval(() => fetch(), fetchInterval*1000);
     return () => clearInterval(interval);
   }, []);
   
-
-  async function sendSms(phoneNumber, message) {
-    return new Promise((resolve, reject) => {
-      SmsAndroid.autoSend(
-        phoneNumber,
-        message,
-        (fail) => {
-          console.log('Failed with this error: ' + fail);
-          reject(false); // Reject the promise with false if there was an error
-        },
-        (success) => {
-          console.log('SMS sent successfully');
-          resolve(true); // Resolve the promise with true if the SMS was sent successfully
-        },
-      );
-    });
-  }
-
   const generateRequestId = () => {
     const timestamp = Date.now().toString(36); // Convert current timestamp to base36 string
     const random = Math.random().toString(36).slice(2, 7); // Generate a random string and take the first 5 characters
@@ -62,33 +34,41 @@ export default function FetchData() {
     return requestId;
   }
 
-
   const registerRequest = (elem,requestKey,status,requestId) => {
     //console.log('register newRequests',requestKey );
-    dispatch(editRequests({[requestKey]: {requestId: requestId, requestTime: getTimestampInSeconds(), status: status}, id: elem.id}));
+    dispatch(editRequests({requestKey: requestKey, requestId: requestId, requestTime: getTimestampInSeconds(), status: status, id: elem.id}));
   }
 
   const unregisterRequest = (elem,requestKey,status) => {
     //console.log('unregister newRequests',requestKey );
-    dispatch(editRequests({[requestKey]: { requestId: null, requestTime: null, status: status}, id: elem.id}));
+    dispatch(editRequests({requestKey: requestKey, status: status, id: elem.id}));  //Check! //Check! //Check!
   }
-  
+
   const sendRequest = async (elem,requestKey,code,payload="") => {
     const requestPendingCode = 3;
     const smsErrorCode = 7;
     const requestId = generateRequestId();
-    const smsSend = await sendSms(elem.address,elem.password+","+code+","+requestId+payload); 
-    if (smsSend) {
-      registerRequest(elem,requestKey,requestPendingCode,requestId);
-    } else {
-      unregisterRequest(elem,requestKey,smsErrorCode)
-    }
+    const phoneNumber = elem.address;
+    const message = elem.password+","+code+","+requestId+payload;
+
+    SmsAndroid.autoSend(
+      phoneNumber,
+      message,
+      (fail) => {
+        console.log('Failed with this error: ' + fail);
+        unregisterRequest(elem,requestKey,smsErrorCode)
+      },
+      (success) => {
+        console.log('SMS sent successfully');
+        registerRequest(elem,requestKey,requestPendingCode,requestId);
+      },
+    );
   }
 
   const handleRequests = (elem) => {
       console.log(elem.requests.position.status);
       //Handle position request if requestId is null
-      if ( (elem.requests.position.status == 1) ) {
+      if ( (elem.requests.position.status == 1) ) { //Check! //Check! //Check!
         sendRequest(elem,'position',0); // 0 is api get position request code 
       }
       //Handle sub/unsub request if requestId is and elem.circle.status = 1 or 2
@@ -106,8 +86,8 @@ export default function FetchData() {
     const timeoutErrorCode = 8;
     const maxTime = (elem.interval) + 300; //120 factory default cycle interval in s , 300 is max device processing time in cycle
     //Handle position request if requestId is null
-    if ( elem.requests.position.requestTime && (elem.requests.position.requestTime < getTimestampInSeconds()-maxTime) ) {
-      unregisterRequest(elem,'position',1) //setting 1 will allow sending position request again                     ///////////////////////
+    if ( elem.requests.position.requestTime && (elem.requests.position.requestTime < getTimestampInSeconds()-maxTime) ) {  //Check! //Check! //Check!
+      unregisterRequest(elem,'position',1) //setting 1 will allow sending position request again                      //Check! //Check! //Check!
     }
     //Handle sub/unsub request if requestId is and elem.circle.status = 1 or 2
     if ( elem.requests.circle.requestTime && (elem.requests.circle.requestTime < getTimestampInSeconds()-maxTime) ) {
@@ -135,13 +115,6 @@ export default function FetchData() {
       } 
     }
     dispatch(edit(newElements));
-  }
-
-  const handleSms = (elem) => {
-
-    handleRequests(elem);
-    handleTimeouts(elem);
-
   }
 
   //sprintf(response, "resp=%d%.6f,%.6f,%d,%s,%d", requestTime, device->position[0], device->position[1],
@@ -233,42 +206,8 @@ export default function FetchData() {
   }
 
   const handleMessage = (elem,message) => {
-    //console.log("message:",message);
     handleBody(message.body,elem);
-    deleteMessageById(message._id);
   }
-
-  const deleteMessageById = (id) => {/*
-    SmsAndroid.delete(
-      id,
-      (fail) => {
-        console.log('Failed with this error: ' + fail);
-      },
-      (success) => {
-        console.log(success);
-      },
-    );*/
-  }
-
-  const deleteSentMessages = () => {/*
-    let filter = {
-      box: 'sent', 
-      address: elem.address
-    };
-      SmsAndroid.list(
-      JSON.stringify(filter),
-      (fail) => {
-        console.log('error handler here' + fail);
-      },
-      (count, smsList) => {
-        if (count>0) {
-          let smsArray = JSON.parse(smsList);
-          smsArray.forEach(elem => deleteMessageById(elem._id));
-        }
-      }
-    );*/
-
-  };
 
   function getMessages(elem) {
     let filter = {
@@ -278,7 +217,7 @@ export default function FetchData() {
       SmsAndroid.list(
       JSON.stringify(filter),
       (fail) => {
-        console.log('error handler here' + fail); //Todo
+        console.log('error' + fail);
       },
       (count, smsList) => {
         if (count>0) {
@@ -290,10 +229,39 @@ export default function FetchData() {
     );
     }
 
+    //updating the database with text messages
+    const updateDB = (elem,message) => {
+        dispatch(addRecord({ record: {address: message.address, date: message.date, body: message.body} , id: elem.id }));
+    }
+    //updating the database with text messages received up to one hour back
+    function getMessagesDB(elem) {
+      const hourAgo = Date.now() - 3600000;
+      let filter = {
+        minDate: hourAgo,
+        address: elem.address, 
+        bodyRegex: 'resp=(.*)'  
+      };
+        SmsAndroid.list(
+        JSON.stringify(filter),
+        (fail) => {
+          console.log('error' + fail);
+        },
+        (count, smsList) => {
+          if (count>0) {
+          let smsArray = JSON.parse(smsList);  
+          //console.log("smsArray:",smsArray);
+          smsArray.forEach(message => updateDB(elem,message))
+          }
+        }
+      );
+      }
+
+
   const handleMessages = (elem) => {
-     getMessages(elem);
-     deleteSentMessages();
-     handleSms(elem);
+    getMessages(elem); //get messages from messaging API on Android
+    getMessagesDB(elem) //get messages from messaging API on Android every unique response saved in Database
+    handleRequests(elem); 
+    handleTimeouts(elem);
   }
 
   function fetch() {
@@ -320,9 +288,7 @@ export default function FetchData() {
       return false
   }
 
-
 return (null);
-//return (<View>{savedDevices[0].address!=undefined&&<Text>{savedDevices[0].name}</Text>}</View>); //test
-//return (<View>{devices[0]?.name!=undefined&&<Text>{devices[0].name}</Text>}</View>); //test
+
 
 }

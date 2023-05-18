@@ -15,7 +15,7 @@ import FetchData from './FetchData';
 import {radiusRange, LATITUDE_DEFAULT, LONGITUDE_DEFAULT} from './sharedValues';
 
 import { useSelector, useDispatch } from 'react-redux'
-import { edit } from './ReduxDevices'
+import { editCircle, editRequests } from './ReduxDevices'
 
 const carMarker = require('./../img/carMarkerSmall.png');
 
@@ -45,7 +45,7 @@ export default function Map() {
   const [isDelete, setIsDelete] = useState(false);
   const [showCarMarker, setShowCarMarker] = useState(true)
 
-  const device = useSelector((state) => state.savedDevices.find(elem => elem.id === selectedId));
+  const device = useSelector((state) => state.savedDevices?.find(elem => elem.id === selectedId));
   const dispatch = useDispatch();
 
   const updateSelectedId = (value) => {
@@ -124,33 +124,22 @@ const handleCancelPress = () => {
 }
 
 const handleSavePress = () => {
-  let updatedDevices = {}; 
-  if (isDelete===true && device.requests.circle.status==11 ) {
-    updatedDevices = {
-      id: selectedId, 
-      requests: {
-          ...device.requests, 
-          circle: { ...device.requests.circle, status: 2 },
-        }, 
-    };
-    dispatch(edit(updatedDevices))
+  //Subscribe request
+  if (isDelete===false) {
+    const requestSubscribeCode = 1;
+    //Update Status and update Circle
+    dispatch(editCircle({requestKey: 'circle', status: requestSubscribeCode, circle: circle, id: selectedId}));  
     ToastAndroid.show("Saved!", ToastAndroid.SHORT);
   }
-  if (isDelete===false) {
-    updatedDevices = { 
-      id: selectedId, 
-      circle:{latitude: circle.latitude, longitude: circle.longitude, radius: circle.radius}, 
-      requests: {
-          ...device.requests, 
-          circle: { ...device.requests.circle, status: 1 },
-        }, 
-    };
-    dispatch(edit(updatedDevices))
+  //Unsubscribe request 
+  if (isDelete===true && device.requests.circle.status==11 ) {
+    const requestUnubscribeCode = 2;
+    //Update Status only
+    dispatch(editCircle({requestKey: 'circle', status: requestUnubscribeCode, id: selectedId}));  
     ToastAndroid.show("Saved!", ToastAndroid.SHORT);
   }
   updateIsConfirm(false);
   updateIsDelete(false);
-
 }
 
 const onCenter = () => {
@@ -170,15 +159,14 @@ const handlePress = (event) => {
   }))
 }
 
-  const changeRegion = (region) => {  
+const changeRegion = (region) => {  
     region=({
        latitude: position.latitude,
        longitude: position.longitude,
        latitudeDelta: LATITUDE_DELTA,
        longitudeDelta: LONGITUDE_DELTA
-      })
-        
-  }
+      })   
+}
 
   const animateCamera = (latitude, longitude) => {
     if (mapRef.current) {
@@ -229,8 +217,8 @@ const handlePress = (event) => {
                     <Circle 
                     center= {{latitude: circle.latitude, longitude: circle.longitude}}
                     radius= {circle.radius}
-                    strokeColor = {(device?.requests?.circle?.status==11 && !isEdit) ? "rgba(0,255,0,1)" : "rgba(255,0,0,1)"}
-                    fillColor = {(device?.requests?.circle?.status==11 && !isEdit) ? "rgba(0,255,0,0.3)" : "rgba(255,0,0,0.3)"}
+                    strokeColor = {(device?.requests?.circle?.status==11 && !isEdit && !isConfirm) ? "rgba(0,255,0,1)" : "rgba(255,0,0,1)"}
+                    fillColor = {(device?.requests?.circle?.status==11 && !isEdit && !isConfirm) ? "rgba(0,255,0,0.3)" : "rgba(255,0,0,0.3)"}
                     />
                     }
                     
