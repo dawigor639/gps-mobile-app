@@ -74,7 +74,7 @@ const savedDevicesSlice = createSlice({
       const newArray = state.map(elem => {
         if (elem.id === id) {
           return {...elem,
-            circle: circle,  
+            circle: circle ?? elem.circle,  
             requests: {
               ...elem.requests,
               [requestKey]: {...elem.requests[requestKey], ...requestProp},

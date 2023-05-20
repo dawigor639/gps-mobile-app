@@ -43,7 +43,7 @@ export default function HistoryList ( {selectedId, history} ) {
   )};
     
   return (
-    <View style={devicesStyles.flatList}>
+    <View style={{...devicesStyles.flatList, margin: 10}}>
       <FlatList
         data={history}
         renderItem={renderItem}

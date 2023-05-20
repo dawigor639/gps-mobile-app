@@ -29,8 +29,8 @@ export default function Map() {
   const mapRef = useRef()
 
   const [position, setPosition] = useState({
-      latitude: LATITUDE_DEFAULT,          
-      longitude: LONGITUDE_DEFAULT,
+      latitude: null,          
+      longitude: null,
       latitudeDelta: LATITUDE_DELTA,
       longitudeDelta: LONGITUDE_DELTA
   })
@@ -78,9 +78,8 @@ export default function Map() {
   const getPosition = ()  => {
     setPosition({
     ...position,
-    latitude: device?.position?.latitude ?? LATITUDE_DEFAULT,
-    longitude: device?.position?.longitude ?? LONGITUDE_DEFAULT,
-    time: device?.position?.time ?? 0
+    latitude: device?.position?.latitude ?? null,
+    longitude: device?.position?.longitude ?? null,
     });
 } 
 
@@ -93,6 +92,7 @@ export default function Map() {
 
 const isFocused = useIsFocused();
 
+//Cleanup
 useEffect(() => {
   return () => {
     updateIsEdit(false);
@@ -101,20 +101,30 @@ useEffect(() => {
   }
 }, [isFocused]);
 
-/*Used to get new circle and position if changed by fetchData component*/
-
+//Used to get new circle and position if changed by fetchData component
 useEffect(() => {
   if (!isEdit && !isConfirm) {
     getCircle(); 
   }
   getPosition(); 
-  //// console.log("effect_map", device)
+  //console.log("useEffec in map on [device]", device)
 }, [device]);
 
 const handleEditPress = () => {
-  updateIsEdit(true);
-  updateIsConfirm(false);
-  updateIsDelete(false);
+  if (!isEdit && !isConfirm) {
+    updateIsEdit(true);
+  } else {
+    getCircle();
+    updateIsEdit(false);
+    updateIsConfirm(false);
+    updateIsDelete(false);
+  }
+}
+
+const handleEditPressConfirm = () => {
+    updateIsEdit(true);
+    updateIsConfirm(false);
+    updateIsDelete(false);
 }
 
 const handleCancelPress = () => {
@@ -144,8 +154,8 @@ const handleSavePress = () => {
 
 const onCenter = () => {
   mapRef.current.animateToRegion({
-      latitude: position.latitude,
-      longitude: position.longitude,
+      latitude: position?.latitude,
+      longitude: position?.longitude,
       latitudeDelta: LATITUDE_DELTA,
       longitudeDelta: LONGITUDE_DELTA
   })
@@ -161,11 +171,11 @@ const handlePress = (event) => {
 
 const changeRegion = (region) => {  
     region=({
-       latitude: position.latitude,
-       longitude: position.longitude,
-       latitudeDelta: LATITUDE_DELTA,
-       longitudeDelta: LONGITUDE_DELTA
-      })   
+      latitude: position?.latitude,
+      longitude: position?.longitude,
+      latitudeDelta: LATITUDE_DELTA,
+      longitudeDelta: LONGITUDE_DELTA
+    })   
 }
 
   const animateCamera = (latitude, longitude) => {
@@ -191,8 +201,8 @@ const changeRegion = (region) => {
                  customMapStyle={customMapStyle}
                 
                  initialRegion={{
-                    latitude: position.latitude,
-                    longitude: position.longitude,
+                    latitude: position?.latitude,
+                    longitude: position?.longitude,
                     latitudeDelta: LATITUDE_DELTA,
                     longitudeDelta: LONGITUDE_DELTA,
                    }}
@@ -205,13 +215,13 @@ const changeRegion = (region) => {
 
                     >
 
-                      {
-                      (showCarMarker && device) && <Marker
-                      onPress={onCenter}
-                      coordinate={{latitude: position.latitude, longitude: position.longitude}}
-                      image={carMarker}
-                      />
-                      }
+                    {
+                    (showCarMarker && position?.latitude && position?.longitude) && <Marker
+                    onPress={onCenter}
+                    coordinate={{latitude: position?.latitude, longitude: position?.longitude}}
+                    image={carMarker}
+                    />
+                    }
 
                     {
                     <Circle 
@@ -232,12 +242,11 @@ const changeRegion = (region) => {
                     
                     <View style={mapStyles.botMenus}>
 
-                    { device && <MapMainMenu handleEditPress = { () => !isConfirm ? updateIsEdit(!isEdit) : undefined } 
-                     showCarMarker={showCarMarker}  handleShowMarker={ () => updateShowCarMarker(!showCarMarker)} /> }
-
+                    {device && <MapMainMenu handleEditPress = { handleEditPress } 
+                     showCarMarker={showCarMarker}  handleShowMarker={ () => updateShowCarMarker(!showCarMarker)}/>}
                     {isEdit && <MapEditMenu updateCircle={updateCircle} circle={circle} 
                     updateIsEdit={updateIsEdit} updateIsConfirm={updateIsConfirm} updateIsDelete={updateIsDelete}/>}
-                    {isConfirm &&  <MapConfirmMenu handleEditPress={handleEditPress} handleCancelPress={handleCancelPress} handleSavePress={handleSavePress}/> }
+                    {isConfirm &&  <MapConfirmMenu handleEditPress={handleEditPressConfirm} handleCancelPress={handleCancelPress} handleSavePress={handleSavePress}/> }
                     
                     </View>
 
