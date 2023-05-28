@@ -41,7 +41,7 @@ export default function FetchData() {
 
   const unregisterRequest = (elem,requestKey,status) => {
     //console.log('unregister newRequests',requestKey );
-    dispatch(editRequests({requestKey: requestKey, status: status, id: elem.id}));  //Check! //Check! //Check!
+    dispatch(editRequests({requestKey: requestKey, requestId: null, requestTime: null, status: status, id: elem.id}));  //Check! //Check! //Check!
   }
 
   const sendRequest = async (elem,requestKey,code,payload="") => {
@@ -186,7 +186,7 @@ export default function FetchData() {
         unregisterRequest(elem,requestKey,code);
         break;
       case 21:
-        newElements = {circle: {latitude: LATITUDE_DEFAULT, longitude: LONGITUDE_DEFAULT, radius: 0},} //TODO CHECK APP BEHAVIOUR for respcode 21
+        const newElements = {circle: {latitude: LATITUDE_DEFAULT, longitude: LONGITUDE_DEFAULT, radius: 0}, id: elem.id} //TODO CHECK APP BEHAVIOUR for respcode 21
         dispatch(edit(newElements));
         unregisterRequest(elem,requestKey,code);
         break;

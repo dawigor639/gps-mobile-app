@@ -29,8 +29,8 @@ export default function HistroyScreen() {
   const devices = useSelector((state) => state.savedDevices);
   const history = useSelector((state) => state.dataBase?.find(elem => elem.id === selectedId)); 
 
-  //console.log("devices",devices);
-  console.log("history",history);
+  ////console.log("devices",devices);
+  //console.log("history",history);
 
   /*
   const devices = [
