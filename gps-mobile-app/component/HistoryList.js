@@ -1,9 +1,9 @@
 import React from 'react'
 import { View, FlatList, Text, TouchableOpacity, Alert } from 'react-native'
 
-import {devicesStyles} from './Styles'
+import { devicesStyles } from './Styles'
 
-export default function HistoryList ( {selectedId, history} ) {
+export default function HistoryList({ selectedId, history }) {
 
   const millisecondsToDateTime = (milliseconds) => {
     const date = new Date(milliseconds);
@@ -21,29 +21,30 @@ export default function HistoryList ( {selectedId, history} ) {
     const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
     const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
     // Concatenate the components into the desired format
-    const formattedDateTime = formattedDay+'.' +formattedMonth +'.' +formattedYear +' ' +formattedHours +':' +formattedMinutes +':'+formattedSeconds;
+    const formattedDateTime = formattedDay + '.' + formattedMonth + '.' + formattedYear + ' ' + formattedHours + ':' + formattedMinutes + ':' + formattedSeconds;
     return formattedDateTime;
   };
 
-  const Item = ({item, onPress, backgroundColor}) => (
-      <View style={devicesStyles.item}>
-        <TouchableOpacity onPress={onPress} style={{backgroundColor}}>
-          <Text style={devicesStyles.text}>{'date: '}{millisecondsToDateTime(item.date)}{'\n'}{'address: '}{item.address}</Text>
-        </TouchableOpacity>
-      </View>
-    );
+  const Item = ({ item, onPress, backgroundColor }) => (
+    <View style={devicesStyles.item}>
+      <TouchableOpacity onPress={onPress} style={{ backgroundColor }}>
+        <Text style={devicesStyles.text}>{'date: '}{millisecondsToDateTime(item.date)}{'\n'}{'address: '}{item.address}</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     return (
       <Item
         item={item}
-          onPress={() => Alert.alert(millisecondsToDateTime(item.date), item.body)}
-          backgroundColor={'white'}
+        onPress={() => Alert.alert(millisecondsToDateTime(item.date), item.body)}
+        backgroundColor={'white'}
       />
-  )};
-    
+    )
+  };
+
   return (
-    <View style={{...devicesStyles.flatList, margin: 10}}>
+    <View style={{ ...devicesStyles.flatList, margin: 10 }}>
       <FlatList
         data={history}
         renderItem={renderItem}
@@ -52,5 +53,5 @@ export default function HistoryList ( {selectedId, history} ) {
       />
     </View>
   );
-      
+
 }

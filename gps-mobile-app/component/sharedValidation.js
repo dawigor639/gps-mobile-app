@@ -9,16 +9,16 @@ export const ADDRESS_REGEX = /^\+?[1-9][0-9]{7,14}$/;
 export const PASSWORD_REGEX = /^[0-9]{18,22}$/;
 export const INTERVAL_REGEX = /^[0-9]{3,5}$/;
 
-export function validateNumber(text,type,regex,min,max) {
+export function validateNumber(text, type, regex, min, max) {
     let number = null;
     if (!regex.test(text))
         return false;
 
-    if (type="int")
+    if (type = "int")
         number = parseInt(text);
-    else 
+    else
         number = parseFloat(text);
 
-    return ( (number >= min) && (number <= max) );
-  }
+    return ((number >= min) && (number <= max));
+}
 

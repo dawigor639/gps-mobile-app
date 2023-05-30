@@ -19,35 +19,36 @@ const savedDevicesSlice = createSlice({
   name: 'savedDevices',
   initialState,
   reducers: {
-    add: (state,action) => {
-      const newArray = [...state, 
-        {id: state.length ? state[state.length-1].id+1 : 1, 
-        name: action.payload.name, address: action.payload.address, password: action.payload.password, 
-        position: {latitude:null, longitude:null, time:null}, 
-        circle: {latitude:52.0, longitude:19.0, radius:0},
+    add: (state, action) => {
+      const newArray = [...state,
+      {
+        id: state.length ? state[state.length - 1].id + 1 : 1,
+        name: action.payload.name, address: action.payload.address, password: action.payload.password,
+        position: { latitude: null, longitude: null, time: null },
+        circle: { latitude: 52.0, longitude: 19.0, radius: 0 },
         interval: 120,
         requests: {
-                  position: {requestId: null, requestTime: null, status: 1},
-                  circle:   {requestId: null, requestTime: null, status: 21},
-                  } 
+          position: { requestId: null, requestTime: null, status: 1 },
+          circle: { requestId: null, requestTime: null, status: 21 },
         }
-        ];
-        return newArray;
+      }
+      ];
+      return newArray;
     },
-    edit: (state,action) => {
+    edit: (state, action) => {
       const newArray = state.map(elem => {
         if (elem.id === action.payload.id) {
-          return {...elem, ...action.payload};
+          return { ...elem, ...action.payload };
         }
         return elem;
       });
       return newArray;
     },
     del: (state, action) => {
-      let newArray = state.filter(elem => (elem.id !== action.payload) );
-      let newId=0;
+      let newArray = state.filter(elem => (elem.id !== action.payload));
+      let newId = 0;
       newArray = newArray.map(elem => {
-          return {...elem, id: ++newId};
+        return { ...elem, id: ++newId };
       });
       return newArray;
     },
@@ -56,16 +57,17 @@ const savedDevicesSlice = createSlice({
       //console.log("log:",id,requestKey);
       const newArray = state.map(elem => {
         if (elem.id === id) {
-          return {...elem, 
+          return {
+            ...elem,
             requests: {
               ...elem.requests,
-              [requestKey]: {...elem.requests[requestKey], ...requestProp},
-              } 
+              [requestKey]: { ...elem.requests[requestKey], ...requestProp },
+            }
           }
         };
         return elem;
       });
-      console.log("log:",newArray[0].requests);
+      console.log("log:", newArray[0].requests);
       return newArray;
     },
     editCircle: (state, action) => {
@@ -73,22 +75,23 @@ const savedDevicesSlice = createSlice({
       //console.log("log:",id,requestKey);
       const newArray = state.map(elem => {
         if (elem.id === id) {
-          return {...elem,
-            circle: circle ?? elem.circle,  
+          return {
+            ...elem,
+            circle: circle ?? elem.circle,
             requests: {
               ...elem.requests,
-              [requestKey]: {...elem.requests[requestKey], ...requestProp},
-              } 
+              [requestKey]: { ...elem.requests[requestKey], ...requestProp },
+            }
           }
         };
         return elem;
       });
-      console.log("log:",newArray[0].requests);
+      console.log("log:", newArray[0].requests);
       return newArray;
     },
   },
 })
 
-export const {add, edit, del, editRequests, editCircle} = savedDevicesSlice.actions;
+export const { add, edit, del, editRequests, editCircle } = savedDevicesSlice.actions;
 
 export const savedDevicesReducer = savedDevicesSlice.reducer;

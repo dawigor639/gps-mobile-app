@@ -3,25 +3,25 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-// Screens
+//Screens
 import HomeScreen from '../component/screens/HomeScreen';
 import DetailsScreen from '../component/screens/DetailsScreen';
 import HistoryScreen from '../component/screens/HistoryScreen';
 
 export default function NavContainer() {
 
-//Screen names
-const homeName = "Home";
-const detailsName = "Details";
-const historyName = "History";
+  //Screen names
+  const homeName = "Home";
+  const detailsName = "Details";
+  const historyName = "History";
 
-const Tab = createBottomTabNavigator();
+  const Tab = createBottomTabNavigator();
 
   return (
     <NavigationContainer>
       <Tab.Navigator
         initialRouteName={homeName}
-        screenOptions={({ route ,  }) => ({
+        screenOptions={({ route, }) => ({
           tabBarActiveTintColor: 'dodgerblue',
           tabBarInactiveTintColor: 'grey',
           tabBarStyle: { paddingBottom: 5, padding: 5, height: 60 },
@@ -39,7 +39,7 @@ const Tab = createBottomTabNavigator();
             } else if (rn === historyName) {
               iconName = focused ? 'server' : 'server-outline';
             }
-            //return any component
+            //icon component
             return <Ionicons name={iconName} size={size} color={color} />;
           },
         })}>
