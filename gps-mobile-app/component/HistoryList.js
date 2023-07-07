@@ -3,8 +3,28 @@ import { View, FlatList, Text, TouchableOpacity, Alert } from 'react-native'
 
 import { devicesStyles } from './Styles'
 
+/**
+ * The function displays a list of historical items with additional information
+ * @function HistoryList
+ * @param props - The component props
+ * @param props.selectedId - The ID of the selected device
+ * @param props.history - History data selected from the Redux store
+ * @returns {JSX.Element} It renders a `FlatList` component that displays a list of items from the `history` array.
+ * Each item is rendered using the `Item` component, which displays the date and address of the item.
+ * When an item is pressed, an alert is displayed
+ */
 export default function HistoryList({ selectedId, history }) {
 
+  /**
+   * The function converts a given number of milliseconds into a formatted date and time string.
+   * @param milliseconds - The number of milliseconds since January 1, 1970, 00:00:00 UTC, also known
+   * as Unix timestamp.
+   * @returns Formatted date and time string in the
+   * format "DD.MM.YYYY HH:MM:SS", where DD is the day, MM is the month, YYYY is the year, HH is the
+   * hour, MM is the minute, and SS is the second, based on the input `milliseconds`.
+   * @memberof HistoryList
+   * @instance  
+   */
   const millisecondsToDateTime = (milliseconds) => {
     const date = new Date(milliseconds);
     const day = date.getDate();
@@ -24,7 +44,16 @@ export default function HistoryList({ selectedId, history }) {
     const formattedDateTime = formattedDay + '.' + formattedMonth + '.' + formattedYear + ' ' + formattedHours + ':' + formattedMinutes + ':' + formattedSeconds;
     return formattedDateTime;
   };
-
+  /**
+   * Item used in devices list
+   * @param props - The component props
+   * @param props.item - The item object to render
+   * @param props.onPress - The function to handle item press
+   * @param props.backgroundColor - The background color of the item
+   * @returns {JSX.Element} The rendered item component
+   * @memberof HistoryList
+   * @instance    
+   */
   const Item = ({ item, onPress, backgroundColor }) => (
     <View style={devicesStyles.item}>
       <TouchableOpacity onPress={onPress} style={{ backgroundColor }}>
@@ -32,7 +61,14 @@ export default function HistoryList({ selectedId, history }) {
       </TouchableOpacity>
     </View>
   );
-
+  /**
+   * Renders an `Item` component, it can be pressed to display additional data
+   * @param props - The function props.
+   * @param props.item - The item object to render.
+   * @returns The rendered item component
+   * @memberof HistoryList
+   * @instance    
+   */
   const renderItem = ({ item }) => {
     return (
       <Item

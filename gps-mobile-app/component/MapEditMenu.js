@@ -1,16 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
-import { mapStyles, settingsStyles } from './Styles'
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { mapStyles } from './Styles'
 import CustomTextInput from './CustomTextInput';
 import CustomSwitch from './CustomSwitch';
 import CustomButton from './CustomButton';
 import { LATITUDE_REGEX, LONGITUDE_REGEX, RADIUS_REGEX } from './sharedValidation';
 import { latitudeRange, longitudeRange, radiusRange } from './sharedValues';
 
-
+/**
+ * React component that renders a menu with options to edit, delete or confirm safe zone represented by circle object
+ * @param props - The component props
+ * @param props.updateCircle - This function updates a circle object with a new value for a specified property.
+ * @param props.circle - Object representing safe zone
+ * @param props.updateIsEdit - Updates "isEdit" state
+ * @param props.updateIsConfirm - Updates "isConfirm" state
+ * @param props.updateIsDelete - Updates "isDelete" state
+ * @function MapEditMenu
+ * @returns {JSX.Element} React component that renders a menu with three buttons: "Cancel", "Edit", and "Save"
+ */
 export default function MapEditMenu({ updateCircle, circle, updateIsEdit, updateIsConfirm, updateIsDelete }) {
-
+  
+  /** indicates whether radius or geographic coordinates are being edited 
+   * @memberof MapEditMenu
+   * @instance    
+   */
   const [switchSetting, setSwitchSetting] = useState(false)
+  /** Object used to track whether each input field is valid
+   * @memberof MapEditMenu
+   * @instance    
+   */
   const [valid, setValid] = useState(
     {
       radius: true,
@@ -18,7 +36,14 @@ export default function MapEditMenu({ updateCircle, circle, updateIsEdit, update
       longitude: true
     }
   )
-
+ /**
+   * This is a function that updates the state of a valid object with a new value for a specific key
+   * @param name - Name of the property in the state object that needs to be updated
+   * @param value - New value that needs to be assigned to the property with
+   * the name specified in the name parameter
+   * @memberof MapEditMenu
+   * @instance    
+   */
   const updateValid = (name, value) => {
     setValid(prevState => ({
       ...prevState,
@@ -26,20 +51,33 @@ export default function MapEditMenu({ updateCircle, circle, updateIsEdit, update
     }))
   }
 
+  /**
+   * The function updates a switch setting with a given value
+   * @param value - The value parameter is the new value for the switch setting
+   * @memberof MapEditMenu
+   * @instance    
+   */
   const updateSwitchSetting = (value) => {
     setSwitchSetting(value);
   }
-
+  /**
+   * The function handles the confirm button press
+   * @memberof MapEditMenu
+   * @instance    
+   */
   const handleConfirm = () => {
     updateIsEdit(false);
     updateIsConfirm(true);
   }
-
+  /**
+   * The function handles the delete button press
+   * @memberof MapEditMenu
+   * @instance    
+   */
   const handleDelete = () => {
     updateIsDelete(true);
     handleConfirm();
   }
-
 
   return (
     <View style={mapStyles.editMenu} >

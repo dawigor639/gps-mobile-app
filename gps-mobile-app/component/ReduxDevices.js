@@ -1,3 +1,12 @@
+/** Module contains a Redux slice for managing a list of saved devices. It uses
+ * the `createSlice` function from the `@reduxjs/toolkit` library to create the slice, which includes
+ * the initial state, reducers for adding, editing, and deleting devices, and thunks for dispatching
+ * actions to add or delete devices from a database. The `addDeviceThunk` and `delDeviceThunk` thunks
+ * dispatch both the `add` or `del` action from the slice and the `addDevice` or `delDevice` action
+ * from the `ReduxDatabase` module. The slice also includes reducers for editing device properties and
+ * requests 
+ * @module ReduxDevices
+ */
 import { createSlice } from '@reduxjs/toolkit'
 import { addDevice, delDevice } from './ReduxDatabase'
 
@@ -33,6 +42,7 @@ const savedDevicesSlice = createSlice({
         }
       }
       ];
+      console.log("add return: ", newArray);
       return newArray;
     },
     edit: (state, action) => {
@@ -42,6 +52,7 @@ const savedDevicesSlice = createSlice({
         }
         return elem;
       });
+      console.log("edit return: ", newArray);
       return newArray;
     },
     del: (state, action) => {
@@ -50,6 +61,7 @@ const savedDevicesSlice = createSlice({
       newArray = newArray.map(elem => {
         return { ...elem, id: ++newId };
       });
+      console.log("del return: ", newArray);
       return newArray;
     },
     editRequests: (state, action) => {

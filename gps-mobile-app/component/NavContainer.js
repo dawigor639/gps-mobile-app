@@ -8,6 +8,14 @@ import HomeScreen from '../component/screens/HomeScreen';
 import DetailsScreen from '../component/screens/DetailsScreen';
 import HistoryScreen from '../component/screens/HistoryScreen';
 
+/**
+ * This function creates a navigation container with three screens using the createBottomTabNavigator
+ * component from React Navigation
+ * @function NavContainer
+ * @returns {JSX.Element} Component that contains a `createBottomTabNavigator` component with three screens: `HomeScreen`, `DetailsScreen`, and
+ * `HistoryScreen`. Each screen has an icon in the bottom tab bar, and the active and inactive colors
+ * of the icons are defined
+ */
 export default function NavContainer() {
 
   //Screen names

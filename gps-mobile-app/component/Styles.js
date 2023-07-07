@@ -1,3 +1,6 @@
+/** Module contains exported styles used in app components
+ * @module Styles
+ */
 import { StyleSheet } from 'react-native'
 
 const mapStyles = StyleSheet.create({

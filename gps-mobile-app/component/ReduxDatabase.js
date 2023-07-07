@@ -1,3 +1,11 @@
+
+/** Module contains Redux slice created using the `createSlice` function from the `@reduxjs/toolkit`
+ * package. The slice is named `dataBase` and has an initial state of an empty array. It also defines
+ * three reducer functions: `addDevice`, `addRecord`, and `delDevice`. These reducers modify the state
+ * of the slice in response to actions dispatched to the Redux store. Finally, the code exports the
+ * reducer function and the action creators for the slice
+ * @module ReduxDatabase
+ */
 import { createSlice } from '@reduxjs/toolkit'
 
 const maxSize = 5000;

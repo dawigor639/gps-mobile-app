@@ -1,3 +1,6 @@
+/** Module contains exported constants that represent ranges and default values 
+ * @module sharedValues
+ */
 export const latitudeRange = { min: -90.0, max: 90.0 };
 export const longitudeRange = { min: -180.0, max: 180.0 };
 export const radiusRange = { min: 50, max: 6371000 };

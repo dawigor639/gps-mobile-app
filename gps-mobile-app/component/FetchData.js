@@ -11,22 +11,49 @@ import { latitudeRange, longitudeRange, radiusRange, unixTimeRange, intervalRang
 
 import { store } from './ReduxStore' // replace for useSelector
 
+/**
+ * This function fetches data from an SMS API at a specified interval, handles requests and timeouts,
+ * updates device state based on received responses, and updates a database with received messages.
+ * @function FetchData
+ * @returns {null} 
+ */
 export default function FetchData() {
 
-  const fetchInterval = 30; //sms api fetching interval in seconds
+  /** Interval in seconds, it is used for fetching data from an SMS API.
+   * @memberof FetchData
+   * @instance    
+   */
+  const fetchInterval = 30;
 
+  /**
+   * The function returns the current timestamp in seconds
+   * @returns Returns the current timestamp in seconds as a whole number (integer)
+   * @memberof FetchData
+   * @instance    
+   */
   const getTimestampInSeconds = () => {
     return Math.floor(Date.now() / 1000)
   }
 
+  /** Dispatch actions to update the state of the Redux store
+   * @memberof FetchData
+   * @instance    
+   */
   const dispatch = useDispatch();
 
+  /* React hook that is used to fetch data from an SMS API at a specified interval */
   useEffect(() => {
     fetch();
     const interval = setInterval(() => fetch(), fetchInterval * 1000);
     return () => clearInterval(interval);
   }, []);
 
+  /**
+   * The function generates a unique request ID by combining the current timestamp and a random string.
+   * @returns Returns a string that combines the current timestamp and a random string
+   * @memberof FetchData
+   * @instance    
+   */
   const generateRequestId = () => {
     const timestamp = Date.now().toString(36); // Convert current timestamp to base36 string
     const random = Math.random().toString(36).slice(2, 7); // Generate a random string and take the first 5 characters
@@ -34,23 +61,52 @@ export default function FetchData() {
     return requestId;
   }
 
+  /**
+   * This function registers a new request by updating its id, time and status
+   * @param elem - Object containing information about single device
+   * @param requestKey - Unique identifier for the request being registered.
+   * @param status - Current status of a request
+   * @param requestId - Unique identifier for a specific request
+   * @memberof FetchData
+   * @instance    
+   */
   const registerRequest = (elem, requestKey, status, requestId) => {
     //console.log('register newRequests',requestKey );
     dispatch(editRequests({ requestKey: requestKey, requestId: requestId, requestTime: getTimestampInSeconds(), status: status, id: elem.id }));
   }
 
+  /**
+   * This function unregisters a request by updating its status, id and time
+   * @param elem - Object containing information about single device
+   * @param requestKey - Unique identifier for the request being registered
+   * @param status - Current status of a request
+   * @memberof FetchData
+   * @instance    
+   */
   const unregisterRequest = (elem, requestKey, status) => {
     //console.log('unregister newRequests',requestKey );
     dispatch(editRequests({ requestKey: requestKey, requestId: null, requestTime: null, status: status, id: elem.id })); 
   }
 
+  /**
+   * This function sends an SMS message with a specific payload to a phone number and registers a
+   * new request on success
+   * @param elem - It is an object that contains information about the recipient of the SMS message,
+   * including their phone number and password.
+   * @param requestKey - It is a key used to identify the type of request
+   * @param code - Represents a code that will be sent in the SMS message
+   * @param payload - An optional parameter that can be used to pass additional data along with the
+   * SMS message. It is an empty string by default
+   * @memberof FetchData
+   * @instance    
+   */
   const sendRequest = async (elem, requestKey, code, payload = "") => {
     const requestPendingCode = 3;
     const smsErrorCode = 7;
     const requestId = generateRequestId();
     const phoneNumber = elem.address;
     const message = elem.password + "," + code + "," + requestId + payload;
-
+    //console.log("Begin sending SMS");
     SmsAndroid.autoSend(
       phoneNumber,
       message,
@@ -65,10 +121,16 @@ export default function FetchData() {
     );
   }
 
+  /**
+   * The function handles position and subscription/unsubscription requests for a given element
+   * @param elem - Object containing information about single device
+   * @memberof FetchData
+   * @instance    
+   */
   const handleRequests = (elem) => {
-    console.log(elem.requests.position.status);
+    //console.log(elem.requests.position.status);
     //Handle position request 
-    if ((elem.requests.position.status == 1)) {
+    if ((elem.requests.position.status == 1) || (elem.requests.position.status == 7)) {
       sendRequest(elem, 'position', 0); // 0 is api get position request code 
     }
     //Handle sub/unsub request if requestId is and elem.circle.status = 1 or 2
@@ -82,6 +144,12 @@ export default function FetchData() {
 
   }
 
+  /**
+   * The function handles timeouts for position and sub/unsub requests in an element.
+   * @param elem - Object containing information about single device
+   * @memberof FetchData
+   * @instance    
+   */
   const handleTimeouts = (elem) => {
     const timeoutErrorCode = 8;
     const maxTime = (elem.interval) + 300; //120 factory default cycle interval in s , 300 max processing time in cycle
@@ -96,6 +164,16 @@ export default function FetchData() {
   }
 
 
+  /**
+   * The function updates a device's position and circle information based on a payload, and dispatches
+   * the changes
+   * @param elem - The `elem` parameter is an object that represents a device. It contains information
+   * about the device's position, circle, interval, and ID, as well as the status of its circle
+   * request
+   * @param payload - The payload parameter is an array that contains information about position, circle and interval
+   * @memberof FetchData
+   * @instance    
+   */
   const updateDevice = (elem, payload) => {
     let newElements = {};
     if (elem.requests.circle.status != 1 && elem.requests.circle.status != 2 && elem.requests.circle.status != 3) {
@@ -117,6 +195,15 @@ export default function FetchData() {
     dispatch(edit(newElements));
   }
 
+  /**
+   * The function finds the key in a requests object that matches the response string
+   * @param response - The response string that needs to be matched with a request ID
+   * @param requests - Object containing current requests
+   * @returns Returns the key of the request object in the `requests`
+   * array that matches given `response` string.
+   * @memberof FetchData
+   * @instance    
+   */
   const matchRequestKey = (response, requests) => {
 
     const requestKey = Object.keys(requests).find((key) => {
@@ -129,6 +216,16 @@ export default function FetchData() {
     return requestKey;
   }
 
+  /**
+   * The function handles the response body of a request and validates its parameters before updating
+   * the state based on the code received.
+   * @param body - The response body
+   * @param elem - Object containing information about single device
+   * @returns Returns `false` if the response is not awaited or if the response is invalid. 
+   * It returns `true` if the response is valid and the state has been updated based on the code
+   * @memberof FetchData
+   * @instance    
+   */
   const handleBody = (body, elem) => {
 
     //Check if response is awaited by checking prefix
@@ -194,16 +291,28 @@ export default function FetchData() {
       default:
         unregisterRequest(elem, requestKey, 9); //error code 9
         return false;
-
-
     }
-
+    return true; 
   }
 
+  /**
+   * Wraps the handleBody function
+   * @param elem - Object containing information about single device
+   * @param message - Object that contains a `body` property.
+   * @memberof FetchData
+   * @instance    
+   */
   const handleMessage = (elem, message) => {
     handleBody(message.body, elem);
   }
 
+  /**
+   * The function retrieves messages from the SMS API that match a specific filter and passes them to
+   * function that handles each message
+   * @param elem - Object containing information about single device
+   * @memberof FetchData
+   * @instance    
+   */
   function getMessages(elem) {
     let filter = {
       address: elem.address,
@@ -217,18 +326,32 @@ export default function FetchData() {
       (count, smsList) => {
         if (count > 0) {
           let smsArray = JSON.parse(smsList);
-          //console.log("smsArray:",smsArray);
+          //console.log("smsArray[0]: ", smsArray[0]);
           smsArray.forEach(message => handleMessage(elem, message))
         }
       }
     );
   }
 
-  //updating the database with text messages
+  /**
+   * The function updates a database with a new record containing an address, date and message body,
+   * using an ID to identify the specific element to update.
+   * @param elem - Object containing information about single device
+   * @param message - Object with content of the message and additional information
+   * @memberof FetchData
+   * @instance    
+   */
   const updateDB = (elem, message) => {
     dispatch(addRecord({ record: { address: message.address, date: message.date, body: message.body }, id: elem.id }));
   }
-  //updating the database with text messages received up to one hour back
+
+  /**
+   * This function retrieves messages from an Android SMS API that match certain criteria
+   * and updates a database with the retrieved messages.
+   * @param elem - Object containing information about single device
+   * @memberof FetchData
+   * @instance    
+   */
   function getMessagesDB(elem) {
     const hourAgo = Date.now() - 3600000;
     let filter = {
@@ -252,6 +375,13 @@ export default function FetchData() {
   }
 
 
+  /**
+   * The function handles messages, requests, timeouts, and retrieves messages from the messaging API
+   * on Android and saves unique responses in a database.
+   * @param elem - Object containing information about single device
+   * @memberof FetchData
+   * @instance    
+   */
   const handleMessages = (elem) => {
     getMessages(elem); //get messages from messaging API on Android
     getMessagesDB(elem) //get messages from messaging API on Android every unique response saved in Database
@@ -259,16 +389,28 @@ export default function FetchData() {
     handleTimeouts(elem);
   }
 
+  /**
+   * The function fetches saved devices and handles messages for each device if permissions are
+   * granted.
+   * @memberof FetchData
+   * @instance    
+   */
   function fetch() {
     handlePermissions().then(resp => {
       if (resp) {
         const devices = store.getState().savedDevices;
-        //console.log('devices2',devices);
+        //console.log('devices2',devices.requests);
         devices.forEach(elem => handleMessages(elem));
       }
     })
   }
 
+  /**
+   * The function checks if SMS permissions are granted
+   * @returns Returns a boolean value indicating whether SMS permissions are granted or not.
+   * @memberof FetchData
+   * @instance    
+   */
   const handlePermissions = async () => {
 
     const sms = await checkSmsPermissions();

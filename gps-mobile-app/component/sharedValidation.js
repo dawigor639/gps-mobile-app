@@ -1,3 +1,6 @@
+/** This module contains exported regular expressions and a function for validating numbers 
+ * @module sharedValidation
+ */
 export const LATITUDE_REGEX = /^([-+]?((90(\.0+)?)|([1-8]?[0-9])(\.[0-9]+)?))$/;
 export const LONGITUDE_REGEX = /^([-+]?((180(\.0+)?)|([1-8]?[0-9])(\.[0-9]+)?))$/;
 export const RADIUS_REGEX = /^[0-9]{1,7}$/
