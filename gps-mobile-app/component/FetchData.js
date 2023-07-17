@@ -85,7 +85,7 @@ export default function FetchData() {
    */
   const unregisterRequest = (elem, requestKey, status) => {
     //console.log('unregister newRequests',requestKey );
-    dispatch(editRequests({ requestKey: requestKey, requestId: null, requestTime: null, status: status, id: elem.id })); 
+    dispatch(editRequests({ requestKey: requestKey, requestId: null, requestTime: getTimestampInSeconds(), status: status, id: elem.id })); 
   }
 
   /**
@@ -130,7 +130,7 @@ export default function FetchData() {
   const handleRequests = (elem) => {
     //console.log(elem.requests.position.status);
     //Handle position request 
-    if ((elem.requests.position.status == 1) || (elem.requests.position.status == 7)) {
+    if ((elem.requests.position.status == 1)) {
       sendRequest(elem, 'position', 0); // 0 is api get position request code 
     }
     //Handle sub/unsub request if requestId is and elem.circle.status = 1 or 2
@@ -151,18 +151,26 @@ export default function FetchData() {
    * @instance    
    */
   const handleTimeouts = (elem) => {
-    const timeoutErrorCode = 8;
     const maxTime = (elem.interval) + 300; //120 factory default cycle interval in s , 300 max processing time in cycle
-    //Handle position request if requestId is null
-    if (elem.requests.position.requestTime && (elem.requests.position.requestTime < getTimestampInSeconds() - maxTime)) {  
+    const smsFailTimeout = 120; // wait this time before sending SMS if SMS sending fails
+    const requestPendingCode = 3;
+    const smsErrorCode = 7;
+    const timeoutErrorCode = 8;
+
+    // Handle position request sending (sms send fail timeout)
+    if ( elem.requests.position.requestTime && (elem.requests.position.status == smsErrorCode) && (elem.requests.position.requestTime < getTimestampInSeconds() - smsFailTimeout)) {  
       unregisterRequest(elem, 'position', 1) //setting 1 will allow sending position request again                     
     }
-    //Handle sub/unsub request if requestId is and elem.circle.status = 1 or 2
-    if (elem.requests.circle.requestTime && (elem.requests.circle.requestTime < getTimestampInSeconds() - maxTime)) {
+    // Handle position request (no response timeout)
+    if ( elem.requests.position.requestTime && (elem.requests.position.status == requestPendingCode) && (elem.requests.position.requestTime < getTimestampInSeconds() - maxTime)) {  
+      unregisterRequest(elem, 'position', 1) //setting 1 will allow sending position request again                     
+    }
+    // Handle sub/unsub request (elem.requests.circle.status = 1 or 2) (no response timeout)
+    if ( elem.requests.circle.requestTime && (elem.requests.circle.status == requestPendingCode) && (elem.requests.circle.requestTime < getTimestampInSeconds() - maxTime)) {
       unregisterRequest(elem, 'circle', timeoutErrorCode);
     }
+    
   }
-
 
   /**
    * The function updates a device's position and circle information based on a payload, and dispatches

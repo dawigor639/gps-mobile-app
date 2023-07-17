@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Dimensions, ToastAndroid } from 'react-native';
+import { View, Dimensions, ToastAndroid, Image } from 'react-native';
 import MapView, { Marker, Circle, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useIsFocused } from '@react-navigation/native';
 
@@ -15,7 +15,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { editCircle } from './ReduxDevices'
 
 /* Image file used as the icon for a Marker component in the MapView */
-const carMarker = require('./../img/carMarkerSmall.png');
+const carMarker = require('./../img/carMarker.png');
 let { /* Width of the device's screen */ width,  /* Height of the device's screen */ height } = Dimensions.get('window');
 /* Calculated aspect ratio of the device's screen */
 const ASPECT_RATIO = width / height;
@@ -338,8 +338,13 @@ export default function Map() {
           (showCarMarker && position?.latitude && position?.longitude) && <Marker
             onPress={onCenter}
             coordinate={{ latitude: position?.latitude, longitude: position?.longitude }}
-            image={carMarker}
-          />
+           >
+            <Image
+            source={carMarker}
+            style={{width: 60, height: 60}}
+            resizeMode="contain"
+            />
+            </Marker>
         }
 
         {

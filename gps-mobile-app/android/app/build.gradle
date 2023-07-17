@@ -224,7 +224,7 @@ android {
         abi {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
-            universalApk false  // If true, also generate a universal APK
+            universalApk true  // If true, also generate a universal APK
             include (*reactNativeArchitectures())
         }
     }
@@ -235,6 +235,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+                storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            }
+        }
     }
     buildTypes {
         debug {
@@ -243,7 +251,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release    // signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -349,6 +357,18 @@ dependencies {
             force 'androidx.core:core:1.6.0'
         }
     }
+    
+    //implementation("androidx.core:core:1.6.0") {
+    //force = true
+    //}
+    //implementation("androidx.core:core-ktx:1.6.0") {
+    //force = true
+    //}   
+    //configurations.all {
+    //    resolutionStrategy {
+    //        force 'androidx.core:core-ktx:1.6.0' // force 'androidx.core:core:1.6.0'
+    //    }
+    //}
 }
 
 if (isNewArchitectureEnabled()) {
